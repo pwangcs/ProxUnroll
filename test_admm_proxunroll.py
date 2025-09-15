@@ -68,7 +68,7 @@ def test(args, cr, color, network, logger, test_dir, epoch=1):
 if __name__=="__main__":
     os.environ["CUDA_VISIBLE_DEVICES"] = "9"
     args = parse_args()
-    args.test_model_path = '/home/wangping/codes/Blind_CS/pami/github/weight/admm_proxunroll.pth'
+    args.test_model_path = './weight/admm_proxunroll.pth'
 
     network = ProxUnroll(color_channel=args.color_channel,
                     dim=args.dim,
