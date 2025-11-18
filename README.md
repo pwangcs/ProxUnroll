@@ -8,5 +8,5 @@ CVPR 2025 [[Arxiv](https://arxiv.org/abs/2505.23180)]
 
 
 <div align="center">
-  <img src="https://github.com/pwangcs/ProxUnroll/blob/main/fig/summary.png"  width="400"> 
+  <img src="https://github.com/pwangcs/ProxUnroll/blob/main/fig/summary.tif"  width="400"> 
 </div>
