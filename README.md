@@ -27,7 +27,11 @@ CVPR 2025 [[Arxiv](https://arxiv.org/abs/2505.23180)]
 ## Result
 <div align="center">
   <img src="https://github.com/pwangcs/ProxUnroll/blob/main/fig/result.png" width="800">
+</div>
+<div align="center">
   <img src="https://github.com/pwangcs/ProxUnroll/blob/main/fig/simulated_visualization.png" width="800">
+</div>
+<div align="center"> 
   <img src="https://github.com/pwangcs/ProxUnroll/blob/main/fig/real_visualization.png" width="800">
 </div>
 
