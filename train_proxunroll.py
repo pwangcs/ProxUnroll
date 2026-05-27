@@ -10,6 +10,7 @@ import cv2
 import torch.distributed as dist
 from torch.utils.data.distributed import DistributedSampler
 from torch.nn.parallel import DistributedDataParallel as DDP
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from opts import parse_args
 import time
 import einops
@@ -30,7 +31,7 @@ def compute_pt_loss(criterion, outputs, prox_outputs):
     return loss
 
 
-def train(args, network, optimizer, logger, weight_path, result_path1, result_path2=None):
+def train(args, network, optimizer, scheduler, logger, weight_path, result_path1, result_path2=None):
     criterion = nn.MSELoss().to(args.device)
     rank = dist.get_rank() if args.distributed else 0
     dataset = TrainData(args.train_data_path, train_sizes=args.train_sizes)
@@ -88,6 +89,8 @@ def train(args, network, optimizer, logger, weight_path, result_path1, result_pa
                     cv2.imwrite(image_path, result_img)
 
         end_time = time.time()
+        scheduler.step()
+
         if rank == 0:
             lr = optimizer.param_groups[0]['lr']
             logger.info(
@@ -99,7 +102,7 @@ def train(args, network, optimizer, logger, weight_path, result_path1, result_pa
         if rank == 0 and (epoch % args.save_model_step) == 0:
             model_out_path = os.path.join(weight_path, 'epoch_{}.pth'.format(epoch))
             model = network.module if args.distributed else network
-            checkpoint(epoch, model, optimizer, model_out_path)
+            checkpoint(epoch, model, optimizer, model_out_path, scheduler=scheduler)
 
         if rank == 0 and args.test_flag:
             logger.info('epoch: {}, psnr and ssim test results:'.format(epoch))
@@ -154,7 +157,9 @@ if __name__ == '__main__':
                 args.decoder_type, args.dim, args.enc_blocks, args.mid_blocks, args.dec_blocks,
             ) + '\n'
             + 'Batch Size: {}'.format(args.batch_size) + '\n'
-            + 'Learning Rate: {:.6f}'.format(args.lr) + '\n'
+            + 'Learning Rate: {:.6f} -> {:.6f} (CosineAnnealingLR, T_max={})'.format(
+                args.lr, args.lr_min, args.epochs,
+            ) + '\n'
             + 'Train Epochs: {}'.format(args.epochs) + '\n'
             + 'Train Sizes: {} ({} crops/iter)'.format(args.train_sizes, args.num_train_crops) + '\n'
             + 'Test or Not: {}'.format(args.test_flag) + '\n'
@@ -193,13 +198,19 @@ if __name__ == '__main__':
         network = torch.compile(network, backend=args.torchcompile)
 
     optimizer = optim.Adam(network.parameters(), lr=args.lr)
-
+    pretrained_dict = None
     if args.pretrained_model_path is not None:
         pretrained_dict = torch.load(args.pretrained_model_path, map_location=args.device)
         args.pretrain_epoch = pretrained_dict.get('pretrain_epoch', 0)
-        load_checkpoint(network, pretrained_dict, logger)
     elif rank == 0:
         logger.info('No pretrained model.')
+
+    last_epoch = args.pretrain_epoch - 1 if args.pretrain_epoch > 0 else -1
+    scheduler = CosineAnnealingLR(
+        optimizer, T_max=args.epochs, eta_min=args.lr_min, last_epoch=last_epoch,
+    )
+    if pretrained_dict is not None:
+        load_checkpoint(network, pretrained_dict, logger, optimizer, scheduler)
 
     if args.distributed:
         pretrain_epoch = torch.tensor(args.pretrain_epoch, device=args.device)
@@ -209,4 +220,4 @@ if __name__ == '__main__':
     if args.distributed:
         network = DDP(network, device_ids=[local_rank], output_device=local_rank, find_unused_parameters=True)
 
-    train(args, network, optimizer, logger, weight_path, result_path1, result_path2)
+    train(args, network, optimizer, scheduler, logger, weight_path, result_path1, result_path2)
