@@ -15,7 +15,8 @@ def parse_args():
         help='Proximal unrolling solver: hqs (HQS) or admm (ADMM)',
     )
     parser.add_argument('--color', default=False, type=bool)
-    parser.add_argument('--lr', default=0.0001, type=float)
+    parser.add_argument('--lr', default=1e-3, type=float, help='Peak learning rate (cosine start)')
+    parser.add_argument('--lr_min', default=1e-4, type=float, help='Minimum learning rate (cosine end)')
     parser.add_argument('--color_channel', default=1, type=int)
     parser.add_argument('--dim', default=48, type=int)
     parser.add_argument('--mid_blocks', default=2)
