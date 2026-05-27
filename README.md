@@ -2,7 +2,7 @@
 
 **CVPR 2025** — [[Paper](https://openaccess.thecvf.com/content/CVPR2025/html/Wang_Proximal_Algorithm_Unrolling_Flexible_and_Efficient_Reconstruction_Networks_for_Single-Pixel_CVPR_2025_paper.html)] [[arXiv](https://arxiv.org/abs/2505.23180)]
 
-[Ping Wang](https://scholar.google.com/citations?user=WCsIUToAAAAJ&hl=zh-CN&oi=ao), [Lishun Wang](https://scholar.google.com/citations?user=BzkbrCgAAAAJ&hl=zh-CN&oi=sra), Gang Qu, [Xiaodong Wang](https://scholar.google.com/citations?user=2JXMfrcAAAAJ&hl=zh-CN&oi=sra), [Yulun Zhang](https://scholar.google.com/citations?user=ORmLjWoAAAAJ&hl=zh-CN), [Xin Yuan](https://scholar.google.com/citations?user=cS9CbWkAAAAJ&hl=zh-CN)
+[Ping Wang](https://scholar.google.com/citations?user=WCsIUToAAAAJ&hl=zh-CN&oi=ao), [Lishun Wang](https://scholar.google.com/citations?user=BzkbrCgAAAAJ&hl=zh-CN&oi=sra), [Gang Qu](https://scholar.google.com/citations?user=AvPlPSUAAAAJ&hl=zh-CN&oi=sra), [Xiaodong Wang](https://scholar.google.com/citations?user=2JXMfrcAAAAJ&hl=zh-CN&oi=sra), [Yulun Zhang](https://scholar.google.com/citations?user=ORmLjWoAAAAJ&hl=zh-CN), [Xin Yuan](https://scholar.google.com/citations?user=cS9CbWkAAAAJ&hl=zh-CN)
 
 ## Abstract
 
@@ -134,7 +134,7 @@ python train_proxunroll.py \
   --train_sizes 256_321 \
   --epochs 200 \
   --batch_size 1 \
-  --lr 1e-4
+  --lr 1e-3 --lr_min 1e-4
 ```
 
 Use `--train_sizes 256_321_512` to include 512×512 patches (higher memory).
@@ -227,7 +227,8 @@ All scripts share options from `opts.py`:
 | `--solver` | `hqs` | `hqs` or `admm` |
 | `--train_sizes` | `256_321_512` | `256_321` or `256_321_512` training resolutions |
 | `--epochs` | `200` | Training epochs |
-| `--lr` | `1e-4` | Adam learning rate |
+| `--lr` | `1e-3` | Peak learning rate (cosine schedule start) |
+| `--lr_min` | `1e-4` | Minimum learning rate (cosine schedule end) |
 | `--batch_size` | `1` | Batch size |
 | `--dim` | `48` | Restorer base channel width |
 | `--enc_blocks` | `[2,2,2]` | Encoder block counts per stage |
