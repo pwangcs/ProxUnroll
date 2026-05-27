@@ -166,16 +166,24 @@ def Logger(log_dir):
     logger.addHandler(ch)
     return logger 
 
-def checkpoint(epoch, model, optimizer, model_out_path):
-    torch.save({'pretrain_epoch':epoch,
-                'state_dict':model.state_dict(),
-                'optimizer':optimizer.state_dict()}, model_out_path)
+def checkpoint(epoch, model, optimizer, model_out_path, scheduler=None):
+    state = {
+        'pretrain_epoch': epoch,
+        'state_dict': model.state_dict(),
+        'optimizer': optimizer.state_dict(),
+    }
+    if scheduler is not None:
+        state['scheduler'] = scheduler.state_dict()
+    torch.save(state, model_out_path)
 
-def load_checkpoint(model, pretrained_dict, logger, optimizer=None):
+
+def load_checkpoint(model, pretrained_dict, logger, optimizer=None, scheduler=None):
     model_dict = model.state_dict()
     pretrained_model_dict = pretrained_dict['state_dict']
-    load_dict = {k: p for k, p in pretrained_model_dict.items() if k in model_dict.keys()} 
+    load_dict = {k: p for k, p in pretrained_model_dict.items() if k in model_dict.keys()}
     model_dict.update(load_dict)
     model.load_state_dict(model_dict)
-    if optimizer is not None:
-        optimizer.load_state_dict(pretrained_dict['optimizer']) 
+    if optimizer is not None and 'optimizer' in pretrained_dict:
+        optimizer.load_state_dict(pretrained_dict['optimizer'])
+    if scheduler is not None and 'scheduler' in pretrained_dict:
+        scheduler.load_state_dict(pretrained_dict['scheduler'])
