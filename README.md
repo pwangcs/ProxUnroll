@@ -2,7 +2,7 @@
 
 **CVPR 2025** — [[Paper](https://openaccess.thecvf.com/content/CVPR2025/html/Wang_Proximal_Algorithm_Unrolling_Flexible_and_Efficient_Reconstruction_Networks_for_Single-Pixel_CVPR_2025_paper.html)] [[arXiv](https://arxiv.org/abs/2505.23180)]
 
-[Ping Wang](https://scholar.google.com/citations?user=WCsIUToAAAAJ&hl=zh-CN&oi=ao), [Lishun Wang](https://scholar.google.com/citations?user=BzkbrCgAAAAJ&hl=zh-CN&oi=sra), Gang Qu, [Xiaodong Wang](https://scholar.google.com/citations?user=2JXMfrcAAAAJ&hl=zh-CN&oi=sra), [Yulun Zhang](https://scholar.google.com/citations?user=ORmLjWoAAAAJ&hl=zh-CN), [Xin Yuan](https://scholar.google.com/citations?user=cS9CbWkAAAAJ&hl=zh-CN)
+[Ping Wang](https://scholar.google.com/citations?user=WCsIUToAAAAJ&hl=zh-CN&oi=ao), [Lishun Wang](https://scholar.google.com/citations?user=BzkbrCgAAAAJ&hl=zh-CN&oi=sra), [Gang Qu](https://scholar.google.com/citations?user=AvPlPSUAAAAJ&hl=zh-CN&oi=sra), [Xiaodong Wang](https://scholar.google.com/citations?user=2JXMfrcAAAAJ&hl=zh-CN&oi=sra), [Yulun Zhang](https://scholar.google.com/citations?user=ORmLjWoAAAAJ&hl=zh-CN), [Xin Yuan](https://scholar.google.com/citations?user=cS9CbWkAAAAJ&hl=zh-CN)
 
 ## Abstract
 
