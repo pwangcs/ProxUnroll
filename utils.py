@@ -14,64 +14,57 @@ import einops
 from sklearn.metrics import mean_squared_error as MSE
 
 
+TRAIN_SIZE_PRESETS = {
+    '256_321': [(256, 256), (321, 481)],
+    '256_321_512': [(256, 256), (321, 481), (512, 512)],
+}
+
+
 class TrainData(Dataset):
-    def __init__(self,train_data_path):
+    def __init__(self, train_data_path, train_sizes='256_321_512'):
+        if train_sizes not in TRAIN_SIZE_PRESETS:
+            raise ValueError(
+                "train_sizes must be one of {}, got {!r}".format(
+                    list(TRAIN_SIZE_PRESETS.keys()), train_sizes,
+                )
+            )
         self.img_path = train_data_path
-        self.size1 = [256, 256]
-        self.size2 = [321, 481]
-        self.size3 = [512, 512]
+        self.sizes = TRAIN_SIZE_PRESETS[train_sizes]
+        self.train_sizes = train_sizes
         repeats = 25
         img_names = os.listdir(self.img_path)
         self.img_names = img_names * repeats
 
-    def __getitem__(self,index):
-        size_h1, size_w1 = self.size1
-        size_h2, size_w2 = self.size2
-        size_h3, size_w3 = self.size3
-        gt1 = np.zeros([size_h1, size_w1],dtype=np.float32)
-        gt2 = np.zeros([size_h2, size_w2],dtype=np.float32)
-        gt3 = np.zeros([size_h3, size_w3],dtype=np.float32)
-        image = cv2.imread(os.path.join(self.img_path,self.img_names[index]))
+    def __getitem__(self, index):
+        image = cv2.imread(os.path.join(self.img_path, self.img_names[index]))
         image_h, image_w = image.shape[:2]
         if image_h > image_w:
             image = cv2.flip(image, 1)
             image = cv2.transpose(image)
             image_h, image_w = image.shape[:2]
 
-        crop_flag = np.random.randint(1,10)
-        crop_h = np.random.randint(image_h//2,image_h)
-        if crop_flag<=3:
-            crop_w = np.random.randint(image_w//2,image_w)
-        elif 3<crop_flag<=6:
+        crop_flag = np.random.randint(1, 10)
+        crop_h = np.random.randint(image_h // 2, image_h)
+        if crop_flag <= 3:
+            crop_w = np.random.randint(image_w // 2, image_w)
+        elif crop_flag <= 6:
             crop_w = crop_h
-        elif 6<crop_flag<=9:
-            crop_w = int(crop_h*(481/321))     
+        else:
+            crop_w = int(crop_h * (481 / 321))
 
         transform = albumentations.Compose([
-            albumentations.RandomCrop(height=crop_h,width=crop_w,p=0.95),
+            albumentations.RandomCrop(height=crop_h, width=crop_w, p=0.95),
             albumentations.HorizontalFlip(p=0.5),
-            albumentations.VerticalFlip(p=0.5)
-        ])
-        transform1 = albumentations.Compose([
-            albumentations.Resize(size_h1,size_w1)
-        ])
-        transform2 = albumentations.Compose([
-            albumentations.Resize(size_h2,size_w2)
-        ])
-        transform3 = albumentations.Compose([
-            albumentations.Resize(size_h3,size_w3)
+            albumentations.VerticalFlip(p=0.5),
         ])
         image = transform(image=image)['image']
-        gt1 = transform1(image=image)['image']
-        gt2 = transform2(image=image)['image']
-        gt3 = transform3(image=image)['image']
-        gt1 = cv2.cvtColor(gt1,cv2.COLOR_BGR2YCrCb)[:,:,0]
-        gt2 = cv2.cvtColor(gt2,cv2.COLOR_BGR2YCrCb)[:,:,0]
-        gt3 = cv2.cvtColor(gt3,cv2.COLOR_BGR2YCrCb)[:,:,0]
-        gt1 = gt1.astype(np.float32) / 255.
-        gt2 = gt2.astype(np.float32) / 255.
-        gt3 = gt3.astype(np.float32) / 255.
-        return [gt1, gt2, gt3]
+
+        gts = []
+        for size_h, size_w in self.sizes:
+            resized = albumentations.Resize(size_h, size_w)(image=image)['image']
+            y = cv2.cvtColor(resized, cv2.COLOR_BGR2YCrCb)[:, :, 0]
+            gts.append(y.astype(np.float32) / 255.)
+        return gts
 
     def __len__(self,):
         return len(self.img_names)
