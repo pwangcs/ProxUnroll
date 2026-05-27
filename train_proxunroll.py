@@ -33,7 +33,8 @@ def compute_pt_loss(criterion, outputs, prox_outputs):
 def train(args, network, optimizer, logger, weight_path, result_path1, result_path2=None):
     criterion = nn.MSELoss().to(args.device)
     rank = dist.get_rank() if args.distributed else 0
-    dataset = TrainData(args.train_data_path)
+    dataset = TrainData(args.train_data_path, train_sizes=args.train_sizes)
+    num_crops = args.num_train_crops
 
     if args.distributed:
         dist_sampler = DistributedSampler(dataset, shuffle=True, drop_last=True, seed=args.seed)
@@ -50,7 +51,6 @@ def train(args, network, optimizer, logger, weight_path, result_path1, result_pa
         )
 
     cr = [0.01, 0.04, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50]
-    num_crops = 3
     for epoch in range(args.pretrain_epoch + 1, args.pretrain_epoch + args.epochs + 1):
         if dist_sampler is not None:
             dist_sampler.set_epoch(epoch)
@@ -156,6 +156,7 @@ if __name__ == '__main__':
             + 'Batch Size: {}'.format(args.batch_size) + '\n'
             + 'Learning Rate: {:.6f}'.format(args.lr) + '\n'
             + 'Train Epochs: {}'.format(args.epochs) + '\n'
+            + 'Train Sizes: {} ({} crops/iter)'.format(args.train_sizes, args.num_train_crops) + '\n'
             + 'Test or Not: {}'.format(args.test_flag) + '\n'
             + 'Pretrain Model: {}'.format(args.pretrained_model_path)
         )
