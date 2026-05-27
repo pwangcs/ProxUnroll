@@ -26,6 +26,12 @@ def parse_args():
     parser.add_argument('--device', default='cuda', type=str)
     parser.add_argument('--iter_step', default=100, type=int)
     parser.add_argument('--test_flag', default=False, type=bool)
+    parser.add_argument(
+        '--train_sizes',
+        default='256_321_512',
+        choices=['256_321', '256_321_512'],
+        help='Training resolutions: 256_321 (256x256 + 321x481) or 256_321_512 (+ 512x512)',
+    )
     parser.add_argument('--train_data_path', type=str, default='/home/wangping/datasets/BSDS400')
     parser.add_argument('--test_data_path', type=str, default='/home/wangping/datasets/Set11')
     parser.add_argument('--test_color_data_path', type=str, default='/home/wangping/datasets/CBSD68')
@@ -34,4 +40,5 @@ def parse_args():
 
     args = parser.parse_args()
     args.decoder_type = '{}_proxunroll'.format(args.solver)
+    args.num_train_crops = 2 if args.train_sizes == '256_321' else 3
     return args
