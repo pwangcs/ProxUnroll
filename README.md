@@ -2,7 +2,7 @@
 
 **CVPR 2025** — [[Paper](https://openaccess.thecvf.com/content/CVPR2025/html/Wang_Proximal_Algorithm_Unrolling_Flexible_and_Efficient_Reconstruction_Networks_for_Single-Pixel_CVPR_2025_paper.html)] [[arXiv](https://arxiv.org/abs/2505.23180)]
 
-[Ping Wang](https://scholar.google.com/citations?user=WCsIUToAAAAJ&hl=zh-CN&oi=ao), [Lishun Wang](https://scholar.google.com/citations?user=BzkbrCgAAAAJ&hl=zh-CN&oi=sra), [Gang Qu](https://scholar.google.com/citations?user=AvPlPSUAAAAJ&hl=zh-CN&oi=sra), [Xiaodong Wang](https://scholar.google.com/citations?user=2JXMfrcAAAAJ&hl=zh-CN&oi=sra), [Yulun Zhang](https://scholar.google.com/citations?user=ORmLjWoAAAAJ&hl=zh-CN), [Xin Yuan](https://scholar.google.com/citations?user=cS9CbWkAAAAJ&hl=zh-CN)
+[Ping Wang](https://scholar.google.com/citations?user=WCsIUToAAAAJ&hl=zh-CN&oi=ao), [Lishun Wang](https://scholar.google.com/citations?user=BzkbrCgAAAAJ&hl=zh-CN&oi=sra), Gang Qu, [Xiaodong Wang](https://scholar.google.com/citations?user=2JXMfrcAAAAJ&hl=zh-CN&oi=sra), [Yulun Zhang](https://scholar.google.com/citations?user=ORmLjWoAAAAJ&hl=zh-CN), [Xin Yuan](https://scholar.google.com/citations?user=cS9CbWkAAAAJ&hl=zh-CN)
 
 ## Abstract
 
@@ -95,7 +95,9 @@ The flag also sets internal run names (`hqs_proxunroll` / `admm_proxunroll`) use
 
 - **BSDS400** (or any folder of RGB training images).
 - Set path with `--train_data_path`.
-- Each iteration samples random crops and resizes them to **256×256**, **321×481**, and **512×512** (Y channel in YCrCb).
+- Each iteration samples random crops and resizes them to one or more fixed resolutions (Y channel in YCrCb), controlled by `--train_sizes`:
+  - `256_321` — **256×256** and **321×481** only (lower GPU memory; recommended if 512×512 does not fit).
+  - `256_321_512` — **256×256**, **321×481**, and **512×512** (default; full multi-scale training).
 
 ### Testing
 
@@ -129,10 +131,13 @@ Train with proximal trajectory (PT) loss. Compression ratio is randomized over
 python train_proxunroll.py \
   --solver hqs \
   --train_data_path /path/to/BSDS400 \
+  --train_sizes 256_321 \
   --epochs 200 \
   --batch_size 1 \
   --lr 1e-4
 ```
+
+Use `--train_sizes 256_321_512` to include 512×512 patches (higher memory).
 
 **ADMM:**
 
@@ -220,6 +225,7 @@ All scripts share options from `opts.py`:
 | Argument | Default | Description |
 |----------|---------|-------------|
 | `--solver` | `hqs` | `hqs` or `admm` |
+| `--train_sizes` | `256_321_512` | `256_321` or `256_321_512` training resolutions |
 | `--epochs` | `200` | Training epochs |
 | `--lr` | `1e-4` | Adam learning rate |
 | `--batch_size` | `1` | Batch size |
