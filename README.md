@@ -82,8 +82,8 @@ Both **HQS** and **ADMM** unrolling are implemented in a single model and contro
 
 | `--solver` | Description | Default checkpoint name |
 |------------|-------------|-------------------------|
-| `hqs`      | Half-quadratic splitting unrolling (default) | `weight/hqs_proxunroll.pth` |
-| `admm`     | Alternating Direction Method of Multipliers unrolling | `weight/admm_proxunroll.pth` |
+| `hqs`      | Half-Quadratic Splitting (HQS) Unrolling (default) | `weight/hqs_proxunroll.pth` |
+| `admm`     | Alternating Direction Method of Multipliers (ADMM) Unrolling | `weight/admm_proxunroll.pth` |
 
 The flag also sets internal run names (`hqs_proxunroll` / `admm_proxunroll`) used for log and checkpoint folders.
 
